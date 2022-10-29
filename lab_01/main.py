@@ -1,26 +1,8 @@
-import math
 from tkinter import *
 import numpy as np
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-
-def uniformDistribution(x, a, b):
-  if a <= x < b:
-    return (x - a) / (b - a)
-  if x < a:
-    return 0
-  return 1
-
-def uniformDistributionDensity(x, a, b):
-  if a <= x <= b:
-    return 1 / (b - a)
-  return 0
-
-def erlangDistribution(x, n, lmbd):
-  return 1 - math.exp(-x / lmbd) * sum((x / lmbd)**i/math.factorial(i) for i in range(n))
-
-def erlangDistributionDensity(x, n, lmbd):
-  return x**(n - 1) * math.exp(-x * lmbd) * lmbd**n / math.factorial(n - 1)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from algs import uniformDistribution, uniformDistributionDensity, erlangDistribution, erlangDistributionDensity
 
 def initCanvasFigure(title):
   fig, axs = plt.subplots(2, figsize=(5, 6), dpi=50)
@@ -42,7 +24,7 @@ def drawCanvasFigure(axs, x, y, density):
   axs[0].plot(x, y, color='blue')
   axs[1].plot(x, density, color='blue')
 
-def _plotUniform():
+def __plotUniform():
   a = float(txtA.get())
   b = float(txtB.get())
 
@@ -61,7 +43,7 @@ def plotUniform(a, b, x1, x2):
 
   drawCanvasUniform(fig)
 
-def _plotErlang():
+def __plotErlang():
   n = int(txtN.get())
   lmbd = float(txtLmbd.get())
 
@@ -105,7 +87,8 @@ canvasErlang = None
 
 
 window.title('Lab1: Uniform & Erlang distribution') 
-window.geometry("1100x750") 
+window.geometry("1100x750")
+window.resizable(False,False)
 
 lblU = Label(window, text="Uniform distribution")
 lblU.grid(column=0, row=0, columnspan=4)
@@ -134,9 +117,9 @@ txtX2U = Entry(window,width=10)
 txtX2U.insert(0, 20)
 txtX2U.grid(column=3, row=2)
 
-btnU = Button(window, text="Plot uniform distribution", command=_plotUniform)  
+btnU = Button(window, text="Plot uniform distribution", command=__plotUniform)  
 btnU.grid(column=0, columnspan=4, row=3)
-_plotUniform()
+__plotUniform()
 
 lblE = Label(window, text="Erlang distribution")
 lblE.grid(column=5, row=0, columnspan=4)
@@ -167,8 +150,8 @@ txtX2E.insert(0, 10)
 txtX2E.grid(column=8, row=2)
 
 
-btnE = Button(window, text="Plot erlang distribution", command=_plotErlang)
+btnE = Button(window, text="Plot erlang distribution", command=__plotErlang)
 btnE.grid(column=5, row=3, columnspan=4)
-_plotErlang()
+__plotErlang()
 
 window.mainloop()
