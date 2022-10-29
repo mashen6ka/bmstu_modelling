@@ -68,12 +68,13 @@ def updateResult(count):
   for i in range(len(txtResult)):
     for j in range(MAX_STATE_COUNT):
       if j > count-1:
+        txtResult[i][j].config(state='normal')
         txtResult[i][j].delete(0, 'end')
         txtResult[i][j].config(state='disabled')
       else:
-        txtResult[i][j].config(state='readonly')
+        txtResult[i][j].config(state='normal')
         txtResult[i][j].delete(0, 'end')
-        # txtResult[i][j].insert(END, 0)
+        txtResult[i][j].config(state='readonly')
 
 def updateStateCount(count):
   updateMatrix(count)
