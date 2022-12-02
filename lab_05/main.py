@@ -10,10 +10,10 @@ class TimeGenerator:
     return uniform(self.time - self.delta, self.time + self.delta)
 
 class RequestGenerator:
-  def __init__(self, timeGenerator, count):
-    self.generator = timeGenerator
+  def __init__(self, timeGenerator, count, recievers = []):
+    self.timeGenerator = timeGenerator
     self.requestCount = count
-    self.receivers = []
+    self.receivers = recievers
     self.next = 0
 
   def generateRequest(self):
@@ -23,13 +23,14 @@ class RequestGenerator:
     return None
 
   def delay(self):
-    return self.generator.randomTime()
+    return self.timeGenerator.randomTime()
 
 class RequestProcessor:
-  def __init__(self, generator, maxQueueSize=1):
-    self.generator = generator
+  def __init__(self, timeGenerator, recievers = [], maxQueueSize = 1):
+    self.timeGenerator = timeGenerator
     self.queue, self.received, self.maxQueue, self.processed = 0, 0, maxQueueSize, 0
     self.next = 0
+    self.receivers = recievers
 
   def receiveRequest(self):
     if self.maxQueue > self.queue:
@@ -44,56 +45,52 @@ class RequestProcessor:
       self.processed += 1
 
   def delay(self):
-    return self.generator.randomTime()
+    return self.timeGenerator.randomTime()
 
 class Model:
-  def __init__(self, generator, operators, computers):
-    self.generator = generator
-    self.operators = operators
-    self.computers = computers
+  def __init__(self, requestGenerator, requestProcessors):
+    self.requestGenerator = requestGenerator
+    self.requestProcessors = requestProcessors
 
-  def simulate(self):
+  def simulate(self, delta):
     refusalCount = 0
-    generatedRequests = self.generator.requestCount
-    generator = self.generator
+    generatedRequests = self.requestGenerator.requestCount
 
-    generator.receivers = self.operators
-    self.operators[0].receivers = [self.computers[0]]
-    self.operators[1].receivers = [self.computers[0]]
-    self.operators[2].receivers = [self.computers[1]]
+    self.requestGenerator.next = self.requestGenerator.delay()
+    self.requestProcessors[0].next = self.requestProcessors[0].delay()
 
-    generator.next = generator.delay()
-    self.operators[0].next = self.operators[0].delay()
-
-    blocks = [generator, self.operators[0], self.operators[1], self.operators[2], self.computers[0], self.computers[1]]
-
-    while generator.requestCount >= 0:
-      currTime = generator.next
+    blocks = [self.requestGenerator, *self.requestProcessors]
+    
+    currTime = 0
+    while self.requestGenerator.requestCount >= 0:
       for block in blocks:
-        if 0 < block.next < currTime: currTime = block.next
-
-      for block in blocks:
-        if currTime == block.next:
+        if block.next <= currTime:
           if isinstance(block, RequestGenerator):
-            nextGenerator = generator.generateRequest()
-            if nextGenerator is not None: nextGenerator.next = currTime + nextGenerator.delay()
+            receiver = self.requestGenerator.generateRequest()
+            if receiver: receiver.next = currTime + receiver.delay()
             else: refusalCount += 1
-            generator.next = currTime + generator.delay()
+            self.requestGenerator.next = currTime + self.requestGenerator.delay()
           elif isinstance(block, RequestProcessor):
             block.processRequest()
             if block.queue == 0: block.next = 0
             else: block.next = currTime + block.delay()
-
+      currTime += delta
+      
     return { "refusalProbability": refusalCount / generatedRequests, "refusalCount": refusalCount }
 
-clientCount = 300
+requestCount = 300
 
-generator = RequestGenerator(TimeGenerator(10, 2), clientCount)
-operators = [RequestProcessor(TimeGenerator(20, 5)), RequestProcessor(TimeGenerator(40, 10)), RequestProcessor(TimeGenerator(40, 20))]
-computers = [RequestProcessor(TimeGenerator(15, 0)), RequestProcessor(TimeGenerator(30, 0))]
+computer1 = RequestProcessor(TimeGenerator(15, 0))
+computer2 = RequestProcessor(TimeGenerator(30, 0))
 
-model = Model(generator, operators, computers)
-result = model.simulate()
+operator1 = RequestProcessor(TimeGenerator(20, 5), [computer1])
+operator2 = RequestProcessor(TimeGenerator(40, 10), [computer1])
+operator3 = RequestProcessor(TimeGenerator(40, 20), [computer2])
+
+requestGenerator = RequestGenerator(TimeGenerator(10, 2), requestCount, [operator1, operator2, operator3])
+
+model = Model(requestGenerator, [operator1, operator2, operator3, computer1, computer2])
+result = model.simulate(0.01)
 
 refusalCount, refusalProbability = result["refusalCount"], result["refusalProbability"]
 
