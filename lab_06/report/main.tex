@@ -1,0 +1,369 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+%\usepackage[14pt]{extsizes}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools} 
+\usepackage{pgfplots}
+\usepackage{filecontents}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{indentfirst}
+\usepackage{eucal}
+\usepackage{enumitem}
+%s\documentclass[openany]{book}
+\frenchspacing
+
+\usepackage{array}
+
+\usepackage{verbatim}
+
+\usepackage{caption}
+\captionsetup{labelsep=endash}
+\captionsetup[figure]{name={Рисунок}}
+
+\usepackage{indentfirst} % Красная строка
+
+\usetikzlibrary{datavisualization}
+\usetikzlibrary{datavisualization.formats.functions}
+
+\usepackage{amsmath}
+
+
+% Для листинга кода:
+\lstset{ %
+	language=c,                 % выбор языка для подсветки (здесь это С)
+	basicstyle=\small\sffamily, % размер и начертание шрифта для подсветки кода
+	numbers=left,               % где поставить нумерацию строк (слева\справа)
+	numberstyle=\tiny,           % размер шрифта для номеров строк
+	stepnumber=1,                   % размер шага между двумя номерами строк
+	numbersep=5pt,                % как далеко отстоят номера строк от подсвечиваемого кода
+	showspaces=false,            % показывать или нет пробелы специальными отступами
+	showstringspaces=false,      % показывать или нет пробелы в строках
+	showtabs=false,             % показывать или нет табуляцию в строках
+	frame=single,              % рисовать рамку вокруг кода
+	tabsize=2,                 % размер табуляции по умолчанию равен 2 пробелам
+	captionpos=t,              % позиция заголовка вверху [t] или внизу [b] 
+	breaklines=true,           % автоматически переносить строки (да\нет)
+	breakatwhitespace=false, % переносить строки только если есть пробел
+	escapeinside={\#*}{*)}   % если нужно добавить комментарии в коде
+}
+
+
+\usepackage[left=2cm,right=2cm, top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+% Для измененных титулов глав:
+\usepackage{titlesec, blindtext, color} % подключаем нужные пакеты
+\definecolor{gray75}{gray}{0.75} % определяем цвет
+\newcommand{\hsp}{\hspace{20pt}} % длина линии в 20pt
+% titleformat определяет стиль
+\titleformat{\chapter}[hang]{\Huge\bfseries}{\thechapter\hsp\textcolor{gray75}{|}\hsp}{0pt}{\Huge\bfseries}
+
+
+% plot
+\usepackage{pgfplots}
+\usepackage{filecontents}
+\usetikzlibrary{datavisualization}
+\usetikzlibrary{datavisualization.formats.functions}
+
+\begin{document}
+	%\def\chaptername{} % убирает "Глава"
+	\thispagestyle{empty}
+	\begin{titlepage}
+		\noindent \begin{minipage}{0.15\textwidth}
+			\includegraphics[width=\linewidth]{inc/b_logo}
+		\end{minipage}
+		\noindent\begin{minipage}{0.9\textwidth}\centering
+			\textbf{Министерство науки и высшего образования Российской Федерации}\\
+			\textbf{Федеральное государственное бюджетное образовательное учреждение высшего образования}\\
+			\textbf{~~~«Московский государственный технический университет имени Н.Э.~Баумана}\\
+			\textbf{(национальный исследовательский университет)»}\\
+			\textbf{(МГТУ им. Н.Э.~Баумана)}
+		\end{minipage}
+		
+		\noindent\rule{18cm}{3pt}
+		\newline\newline
+		\noindent ФАКУЛЬТЕТ $\underline{\text{«Информатика и системы управления»}}$ \newline\newline
+		\noindent КАФЕДРА $\underline{\text{«Программное обеспечение ЭВМ и информационные технологии»}}$\newline\newline\newline\newline\newline
+		
+		\begin{center}
+			\noindent\begin{minipage}{1.1\textwidth}\centering
+				\Large\textbf{Отчет по лабораторной работе №6}\newline
+				\textbf{по дисциплине <<Моделирование>>}\newline\newline
+			\end{minipage}
+		\end{center}
+		
+		\noindent\textbf{Тема} $\underline{\text{Моделирование выставочного центра}}$\newline\newline
+		\noindent\textbf{Студент} $\underline{\text{Слепокурова М.Ф.}}$\newline\newline
+		\noindent\textbf{Группа} $\underline{\text{ИУ7-76Б}}$\newline\newline
+		\noindent\textbf{Оценка (баллы)} $\underline{\text{~~~~~~~~~~~~~~~~~}}$\newline\newline
+		\noindent\textbf{Преподаватель} $\underline{\text{Рудаков И.В.}}$\newline\newline\newline
+		
+		\begin{center}
+			\vfill
+			Москва~---~\the\year
+			~г.
+		\end{center}
+	\end{titlepage}
+
+\setcounter{page} {2}
+
+
+\section*{Постановка задачи}
+В выставочный центр каждые $5\pm2$ минут приходят посетители. На входе в центр работают 3 кассы, каждая обслуживает одного посетителя за $5\pm3$ минут. С вероятностью 0.6 у посетителя уже есть входной билет, и ему не нужно проходить через кассы. Посетитель при входе выбирает кассу с наименьшей очередью.
+
+После касс посетитель по билету может пойти в один из трех выставочных залов, выбирая тот, в очереди на вход к которому меньше людей. Однако если длина наименьшей очереди составляет 10 и более человек, посетитель покидает выставочный центр недовольным.
+
+В виду ковидных ограничений в каждом зале может одновременно находиться от 5 до 7 человек. Каждые $75\pm3$ минут зал покидают все посетители, и контроллер впускает новую группу из очереди, если набралось нужное количество людей (от 5 до 7).
+
+
+Смоделировать прием 1000 посетителей выставочным центром, взяв за единицу системного времени значение 0.01. Определить вероятность того, что посетитель покинет выставочный центр недовольным.
+
+\section*{Теория}
+
+\subsection*{Анализ задачи}
+Эндогенные переменные: время оформления билета $i$-м кассиром и время проведения экскурсии в $j$-м выставочном зале.
+
+Экзогенные переменные: $n_0$ --- число довольных посетителей (посетивших выставочный зал), $n_1$ --- число недовольных посетителей (не посетивших выставочный зал).
+
+Вероятность того, что посетитель окажется недовольным, может быть рассчитана по следующей формуле:
+\begin{equation}
+    \frac{n_1}{n_0 + n_1}
+\end{equation}
+
+На рисунке \ref{img:schema1} изображена структурная схема реализуемой модели.
+
+\begin{figure}[h!btp]
+	\centering
+	\includegraphics[width=1\columnwidth]{inc/schema1.pdf}
+	\caption{Структурная схема модели}
+	\label{img:schema1}	
+\end{figure}
+\clearpage
+
+На рисунке \ref{img:schema2} изображена схема модели в терминах СМО, где $\text{Г}$ --- генератор заявок, $\text{К}_i$ --- канал обработки, $\text{Н}_i$ --- накопитель.
+
+\begin{figure}[h!btp]
+	\centering
+	\includegraphics[width=0.8\columnwidth]{inc/schema2.pdf}
+	\caption{Схема модели в терминах СМО}
+	\label{img:schema2}	
+\end{figure}
+
+\subsection*{Принцип $\Delta t$}
+Данный принцип заключается в последовательном анализе состояний всех блоков в момент $t + \Delta t$ по заданному состоянию блоков в момент времени $t$, при этом новое состояние блоков определяется в соответствии с их алгоритмическим описанием с учетом действующих случайных факторов, задаваемых распределениями вероятности. В результате такого анализа принимается решение о том, какие общесистемные события должны имитироваться программной моделью на данный момент времени.
+
+\section*{Средства реализации}
+
+Для реализации приложения был выбран язык программирования Python.
+
+\clearpage
+\section*{Листинг кода}
+
+\begin{lstlisting}
+from numpy.random import uniform
+from random import random
+
+REFUSAL_QUEUE_SIZE = 10
+
+MIN_QUEUE_SIZE = 5
+MAX_QUEUE_SIZE = 7
+
+HAS_TICKET_PROBABILITY = 0.6
+
+class TimeGenerator:
+  def __init__(self, time, delta):
+    self.time = time
+    self.delta = delta
+
+  def randomTime(self):
+    return uniform(self.time - self.delta, self.time + self.delta)
+
+class RequestGenerator:
+  def __init__(self, timeGenerator, count, receivers = []):
+    self.timeGenerator = timeGenerator
+    self.requestCount = count
+    self.receivers = receivers
+    self.next = 0
+    self.hasTicketProbability = HAS_TICKET_PROBABILITY
+
+  def generateRequest(self, currTime):
+    self.requestCount -= 1
+    self.next = currTime + self.generateDuration()
+    
+    hasTicket = random() < self.hasTicketProbability
+    if hasTicket: return self.receivers[0].getReceiver()
+    
+    minQueueSize = self.receivers[0].queueSize
+    minReceiverId = 0
+    for index, receiver in enumerate(self.receivers):
+      if receiver.queueSize < minQueueSize:
+        minQueueSize = receiver.queueSize
+        minReceiverId = index
+    return self.receivers[minReceiverId]
+      
+  def generateDuration(self):
+    return self.timeGenerator.randomTime()
+\end{lstlisting}
+\clearpage
+\begin{lstlisting}
+class RequestProcessor:
+  def __init__(self, timeGenerator, receivers = []):
+    self.timeGenerator = timeGenerator
+    self.queueSize = 0
+    self.next = 0
+    self.receivers = receivers
+
+  def pushRequest(self):
+    self.queueSize += 1
+
+  def popRequest(self, currTime):
+    if self.queueSize > 0:
+      self.queueSize -= 1
+      self.next = currTime + self.generateDuration()
+      return True
+    else:
+      self.next = 0
+      return False
+
+  def getReceiver(self):
+    return self.receivers[0]
+
+  def generateDuration(self):
+    return self.timeGenerator.randomTime()
+
+class Exhibition(RequestProcessor):
+  def __init__(self, timeGenerator):
+    super().__init__(timeGenerator)
+
+  def pushRequest(self):
+    super().pushRequest()
+
+  def popRequest(self, currTime):
+    if self.queueSize >= MIN_QUEUE_SIZE:
+      self.queueSize -= min(self.queueSize, MAX_QUEUE_SIZE)
+      self.next = currTime + self.generateDuration()
+      return True
+    else:
+      self.next = 0
+      return False
+  
+  def getReceiver(self):
+    return None
+  
+  def generateDuration(self):
+    return super().generateDuration()
+\end{lstlisting}
+\clearpage
+\begin{lstlisting}
+class BoxOffice(RequestProcessor):
+  def __init__(self, timeGenerator, receivers = []):
+    super().__init__(timeGenerator, receivers)
+
+  def pushRequest(self):
+    super().pushRequest()
+
+  def popRequest(self, currTime):
+    return super().popRequest(currTime)
+  
+  def getReceiver(self):
+    minQueueSize = self.receivers[0].queueSize
+    minReceiverId = 0
+    
+    for index, receiver in enumerate(self.receivers):
+      if receiver.queueSize < minQueueSize:
+        minQueueSize = receiver.queueSize
+        minReceiverId = index
+    if minQueueSize >= REFUSAL_QUEUE_SIZE: return None
+    return self.receivers[minReceiverId]
+  
+  def generateDuration(self):
+    return super().generateDuration()
+
+class Model:
+  def __init__(self, generator, processors):
+    self.generator = generator
+    self.processors = processors
+
+  def simulate(self, delta):
+    refusalCount = 0
+    generatedRequests = self.generator.requestCount
+    
+    blocks = [self.generator, *self.processors]
+
+    currTime = 0
+    while self.generator.requestCount > 0:
+      for block in blocks:
+        if block.next <= currTime:
+          if isinstance(block, RequestGenerator):
+            receiver = self.generator.generateRequest(currTime)
+            if not receiver: refusalCount += 1
+            else: receiver.pushRequest()
+          elif isinstance(block, BoxOffice):
+            if block.popRequest(currTime):
+              receiver = block.getReceiver()
+              if receiver is None: refusalCount += 1
+              else: receiver.pushRequest()
+          elif isinstance(block, Exhibition):
+\end{lstlisting}
+\begin{lstlisting}
+            block.popRequest(currTime)
+      currTime += delta
+    return { "refusalProbability": refusalCount / generatedRequests, "refusalCount": refusalCount }
+
+requestCount = 1000
+
+exhibition1 = Exhibition(TimeGenerator(75, 3))
+exhibition2 = Exhibition(TimeGenerator(75, 3))
+
+boxOffice1 = BoxOffice(TimeGenerator(5, 3), [exhibition1, exhibition2])
+boxOffice2 = BoxOffice(TimeGenerator(5, 3), [exhibition1, exhibition2])
+boxOffice3 = BoxOffice(TimeGenerator(5, 3), [exhibition1, exhibition2])
+
+requestGenerator = RequestGenerator(TimeGenerator(5, 2), requestCount, [boxOffice1, boxOffice2, boxOffice3])
+
+model = Model(requestGenerator, [boxOffice1, boxOffice2, boxOffice3, exhibition1, exhibition2])
+result = model.simulate(0.01)
+
+refusalCount, refusalProbability = result["refusalCount"], result["refusalProbability"]
+
+print("Visitors: ", requestCount)
+print("Probability of having a ticket: ", HAS_TICKET_PROBABILITY)
+print("Refusals: ", refusalCount)
+print("Refusal probability: ", round(refusalProbability, 2))
+\end{lstlisting}
+
+
+\section*{Демонстрация работы программы}
+На рисунке \ref{fig:pic1} изображен пример работы программы для 1000 посетителей.
+
+\begin{figure}[h!btp]
+	\centering
+	\includegraphics[width=0.6\textwidth]{inc/pic1.png}
+	\caption{Пример работы программы --- 1}
+	\label{fig:pic1}	
+\end{figure}
+\clearpage
+
+На рисунке \ref{fig:pic2} изображен пример работы программы для 3000 посетителей. Заметим, что вероятность того, что посетитель уйдет недовольным, практически не меняется.
+
+\begin{figure}[h!btp]
+	\centering
+	\includegraphics[width=0.6\textwidth]{inc/pic2.png}
+	\caption{Пример работы программы --- 2}
+	\label{fig:pic2}	
+\end{figure}
+
+На рисунке \ref{fig:pic3} изображен пример работы программы для 5000 заявок. Заметим, что вероятность того, что посетитель уйдет недовольным, практически не меняется.
+
+\begin{figure}[h!btp]
+	\centering
+	\includegraphics[width=0.6\textwidth]{inc/pic3.png}
+	\caption{Пример работы программы --- 3}
+	\label{fig:pic3}	
+\end{figure}
+
+\bibliographystyle{utf8gost705u}  % стилевой файл для оформления по ГОСТу
+\bibliography{51-biblio}          % имя библиографической базы (bib-файла)
+	
+\end{document}
