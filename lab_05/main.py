@@ -9,10 +9,10 @@ class TimeGenerator:
     return uniform(self.time - self.delta, self.time + self.delta)
 
 class RequestGenerator:
-  def __init__(self, timeGenerator, count, recievers = []):
+  def __init__(self, timeGenerator, count, receivers = []):
     self.timeGenerator = timeGenerator
     self.requestCount = count
-    self.receivers = recievers
+    self.receivers = receivers
     self.next = 0
 
   def generateRequest(self, currTime):
