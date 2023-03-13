@@ -1,0 +1,18 @@
+REENTER_PROBABILITY variable 0.3
+
+UNIFORM_LEFT variable 1
+UNIFORM_RIGHT variable 10
+
+ERLANG_RATE variable 0.5
+ERLANG_SHAPE variable 9
+
+
+DATASRC	 	GENERATE (UNIFORM(1,V$UNIFORM_LEFT,V$UNIFORM_RIGHT))	; Generating requests according to Uniform distribution
+BUFMEM 		QUEUE BUFFER_MEMORY		                                ; Entering the Processor's queue (Buffer Memory)
+		      SEIZE PROCESSOR			                                  ; Attempting to occupy the Processor
+		      DEPART BUFFER_MEMORY		                              ; Leaving the Buffer Memory
+PROC		  ADVANCE (GAMMA(1,0,V$ERLANG_RATE,V$ERLANG_SHAPE))	    ; Imitating request processing according to Erlang distribution
+		      RELEASE PROCESSOR		                                  ; Finishing request processing
+		      TRANSFER V$REENTER_PROBABILITY,FINISH,BUFMEM	        ; Reentering the Buffer Memory with some probability
+FINISH		TERMINATE 1			                                      ; Leaving the system
+		      START 10000		                                        ; Starting simulation with 10000 requests to process
